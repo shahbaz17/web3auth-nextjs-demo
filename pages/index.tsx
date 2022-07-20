@@ -14,7 +14,8 @@ const Home: NextPage = () => {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to <a href="#">Next.js!</a> and Web3Auth Demo Application
+          Welcome to Next.js and <a href="https://web3auth.io">Web3Auth</a> Demo
+          Application
         </h1>
 
         <p className={styles.description}>
