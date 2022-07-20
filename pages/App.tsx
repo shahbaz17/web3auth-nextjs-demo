@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { Web3Auth } from "@web3auth/web3auth";
-import {
-  WALLET_ADAPTERS,
-  CHAIN_NAMESPACES,
-  SafeEventEmitterProvider,
-} from "@web3auth/base";
+import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from "@web3auth/base";
+// add WALLET_ADAPTERS above when using custom authentication
 // import {OpenloginAdapter} from '@web3auth/openlogin-adapter'
 // import RPC from './evm.web3'
 import RPC from "./evm.ethers";
