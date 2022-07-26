@@ -1,7 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type {NextApiRequest, NextApiResponse} from 'next'
 import * as jose from 'jose'
-import {getPublicCompressed} from '@toruslabs/eccrypto'
 
 type Data = {
   name: string
@@ -13,7 +12,7 @@ export default async function handler(
 ) {
   try {
     const idToken = req.headers.authorization?.split(' ')[1] || ''
-    const app_scoped_privkey = req.body.privateKey
+    const app_pub_key = req.body.appPubKey
     const jwks = jose.createRemoteJWKSet(
       new URL('https://api.openlogin.com/jwks'),
     )
@@ -21,10 +20,6 @@ export default async function handler(
       algorithms: ['ES256'],
     })
 
-    const app_pub_key = getPublicCompressed(
-      Buffer.from(app_scoped_privkey.padStart(64, '0'), 'hex'),
-    ).toString('hex')
-    console.log(app_pub_key)
     if ((jwtDecoded.payload as any).wallets[0].public_key == app_pub_key) {
       // Verified
       console.log('Validation Success')

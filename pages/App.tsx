@@ -17,7 +17,6 @@ function App() {
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(
     null,
   )
-  const [privateKey, setPrivateKey] = useState<string | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -51,6 +50,9 @@ function App() {
         setWeb3auth(web3auth)
 
         await web3auth.init()
+        if (web3auth.provider) {
+          setProvider(web3auth.provider)
+        }
       } catch (error) {
         console.error(error)
       }
@@ -71,11 +73,6 @@ function App() {
       },
     )
     setProvider(web3authProvider)
-    const privateKey = await web3authProvider?.request({
-      method: 'eth_private_key',
-    })
-    setPrivateKey(privateKey as string)
-    uiConsole(privateKey)
   }
 
   const getUserInfo = async () => {
@@ -84,6 +81,7 @@ function App() {
       return
     }
     const user = await web3auth.getUserInfo()
+    const parsedToken = parseJWT(user?.idToken as string)
 
     // Validate idToken with server
     const res = await fetch('/api/login', {
@@ -92,15 +90,21 @@ function App() {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + user.idToken,
       },
-      body: JSON.stringify({privateKey: privateKey}),
+      body: JSON.stringify({appPubKey: parsedToken.wallets[0].public_key}),
     })
     if (res.status === 200) {
-      alert('JWT Verification Successful')
+      console.log('JWT Verification Successful')
       uiConsole(user)
     } else {
-      alert('JWT Verification Failed')
+      console.log('JWT Verification Failed')
       uiConsole('JWT Verification Failed')
     }
+  }
+
+  const parseJWT = (token: string) => {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace('-', '+').replace('_', '/')
+    return JSON.parse(window.atob(base64))
   }
 
   const logout = async () => {
