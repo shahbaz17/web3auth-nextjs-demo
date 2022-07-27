@@ -30,6 +30,6 @@ export default async function handler(
       console.log("Validation Failed");
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ name: "error" });
   }
 }
