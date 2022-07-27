@@ -3,7 +3,7 @@ name: Continuos Integration
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build_pull_request:
