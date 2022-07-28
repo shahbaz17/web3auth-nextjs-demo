@@ -80,30 +80,7 @@ function App() {
       return;
     }
     const user = await web3auth.getUserInfo();
-    const parsedToken = parseJWT(user?.idToken as string);
-
-    // Validate idToken with server
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + user.idToken,
-      },
-      body: JSON.stringify({ appPubKey: parsedToken.wallets[0].public_key }),
-    });
-    if (res.status === 200) {
-      console.log("JWT Verification Successful");
-      uiConsole(user);
-    } else {
-      console.log("JWT Verification Failed");
-      uiConsole("JWT Verification Failed");
-    }
-  };
-
-  const parseJWT = (token: string) => {
-    const base64Url = token.split(".")[1];
-    const base64 = base64Url.replace("-", "+").replace("_", "/");
-    return JSON.parse(window.atob(base64));
+    uiConsole(user);
   };
 
   const logout = async () => {
