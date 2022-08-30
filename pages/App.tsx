@@ -24,9 +24,12 @@ function App() {
           clientId,
           chainConfig: {
             chainNamespace: CHAIN_NAMESPACES.EIP155,
-            chainId: "0x3",
-            rpcTarget:
-              "https://ropsten.infura.io/v3/85adb989acb84886bcc335940e6c8730",
+            chainId: "0x13881",
+            rpcTarget: "https://rpc.ankr.com/polygon_mumbai",
+            displayName: "Polygon Testnet",
+            blockExplorer: "https://mumbai.polygonscan.com/",
+            ticker: "MATIC",
+            tickerName: "Matic",
           },
         });
 
@@ -136,7 +139,7 @@ function App() {
       const web3 = new Web3(provider as any);
       const accounts = await web3.eth.getAccounts();
       const balance = await web3.eth.getBalance(accounts[0]);
-      uiConsole(balance);
+      uiConsole(web3.utils.fromWei(balance) + " MATIC");
     } catch (error) {
       uiConsole(error);
     }
@@ -192,6 +195,49 @@ function App() {
     }
   };
 
+  const readContract = async () => {
+    if (!provider) {
+      uiConsole("provider not initialized yet");
+      return;
+    }
+    const web3 = new Web3(provider as any);
+    const contractABI =
+      '[ { "inputs": [ { "internalType": "string", "name": "initMessage", "type": "string" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [ { "internalType": "string", "name": "newMessage", "type": "string" } ], "name": "update", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "message", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" } ]';
+    const contractAddress = "0x3888B4606F9f12eE2e92f04Bb0398172BB91765d";
+    const contract = new web3.eth.Contract(
+      JSON.parse(contractABI),
+      contractAddress
+    );
+    // Read message from smart contract
+    const message = await contract.methods.message().call();
+    uiConsole(message);
+  };
+
+  const writeContract = async () => {
+    if (!provider) {
+      uiConsole("provider not initialized yet");
+      return;
+    }
+    const web3 = new Web3(provider as any);
+
+    const fromAddress = (await web3.eth.getAccounts())[0];
+
+    const contractABI =
+      '[ { "inputs": [ { "internalType": "string", "name": "initMessage", "type": "string" } ], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [ { "internalType": "string", "name": "newMessage", "type": "string" } ], "name": "update", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "message", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" } ]';
+    const contractAddress = "0x3888B4606F9f12eE2e92f04Bb0398172BB91765d";
+    const contract = new web3.eth.Contract(
+      JSON.parse(contractABI),
+      contractAddress
+    );
+    // Send transaction to smart contract to update message and wait to finish
+    const receipt = await contract.methods
+      .update("Your Journey to Web3 begins with Web3Auth")
+      .send({
+        from: fromAddress,
+      });
+    uiConsole(receipt);
+  };
+
   function uiConsole(...args: any[]): void {
     const el = document.querySelector("#console>p");
     if (el) {
@@ -238,6 +284,16 @@ function App() {
           </button>
         </div>
         <div>
+          <button onClick={readContract} className="card">
+            Read Contract
+          </button>
+        </div>
+        <div>
+          <button onClick={writeContract} className="card">
+            Write Contract
+          </button>
+        </div>
+        <div>
           <button onClick={logout} className="card">
             Log Out
           </button>
@@ -263,6 +319,8 @@ function App() {
           Web3Auth
         </a>{" "}
         & NextJS Example for Google Login
+        <br />
+        on Polygon
       </h1>
 
       <div className="grid">{provider ? loginView : logoutView}</div>
