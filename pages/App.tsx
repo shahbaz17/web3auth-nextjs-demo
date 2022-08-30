@@ -21,11 +21,12 @@ function App() {
     const init = async () => {
       try {
         const web3auth = new Web3AuthCore({
+          clientId,
           chainConfig: {
             chainNamespace: CHAIN_NAMESPACES.EIP155,
             chainId: "0x3",
             rpcTarget:
-              "https://ropsten.infura.io/v3/0bb786dc49de43ce9b62a026c0297f9a",
+              "https://ropsten.infura.io/v3/85adb989acb84886bcc335940e6c8730",
           },
         });
 
@@ -81,6 +82,25 @@ function App() {
     }
     const user = await web3auth.getUserInfo();
     uiConsole(user);
+  };
+
+  const authenticateUser = async () => {
+    if (!web3auth) {
+      uiConsole("web3auth not initialized yet");
+      return;
+    }
+    const idToken = await web3auth.authenticateUser();
+    // console.log(JSON.stringify(user, null, 2))
+    uiConsole(idToken);
+  };
+
+  const parseToken = async () => {
+    const idToken = await web3auth?.authenticateUser();
+    console.log(idToken?.idToken);
+    const base64Url = idToken?.idToken.split(".")[1];
+    const base64 = base64Url?.replace("-", "+").replace("_", "/");
+    const result = JSON.parse(window.atob(base64 || ""));
+    uiConsole(result);
   };
 
   const logout = async () => {
@@ -193,6 +213,16 @@ function App() {
           </button>
         </div>
         <div>
+          <button onClick={authenticateUser} className="card">
+            Get idToken
+          </button>
+        </div>
+        <div>
+          <button onClick={parseToken} className="card">
+            Parse idToken
+          </button>
+        </div>
+        <div>
           <button onClick={getBalance} className="card">
             Get Balance
           </button>
@@ -239,7 +269,7 @@ function App() {
 
       <footer className="footer">
         <a
-          href="https://github.com/Web3Auth/examples/tree/master/google-core-react-example"
+          href="https://github.com/shahbaz17/web3auth-nextjs-demo"
           target="_blank"
           rel="noopener noreferrer"
         >
